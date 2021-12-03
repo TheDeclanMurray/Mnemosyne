@@ -1,5 +1,3 @@
-
-
 class Tnode():
 
     def __init__(self, data):
@@ -15,16 +13,13 @@ class Tnode():
             Lheight = self.left.height
         if self.right != None:
             Rheight = self.right.height
-        print(self.toString()+".L =",Lheight)
-        print(self.toString()+".R =",Rheight)
+        # print("H",self.toString()+".L =",Lheight)
+        # print("H",self.toString()+".R =",Rheight)
         self.height = max(Lheight,Rheight) + 1
         return self.height
 
     def toString(self):
-        rtn = str(self.data)
-        if len(rtn) == 1:
-            rtn = "0"+rtn
-
+        rtn = self.data.toString()
         return "["+rtn+"]"
 
 
@@ -40,6 +35,7 @@ class AVLTree():
 
             ;param data: new data
         """
+        # print("adding",data.toString())
         baby = Tnode(data)
         self.root = self.__adder__(self.root, baby)
 
@@ -59,32 +55,18 @@ class AVLTree():
             self.root = baby
             return baby
         
-        """if new data is less than curr.data go left"""
-        if baby.data <= curr.data:
+        """if new data is less than or equal to curr.data go left"""
+        if baby.data.compareTo(curr.data) <= 0:
 
             """when to add baby"""
             if curr.left == None:
                 curr.left = baby
                 curr.calcHeight()
-                self.tracked = "L"
                 return curr
             
             """send baby to be added to left sub-tree, get ballenced sub-tree"""
             curr.left = self.__adder__(curr.left, baby)
             curr.calcHeight()
-            nextTracked = "L"
-
-            """calculate height difference at node"""
-            if curr.right == None:
-                bal = curr.left.height - 0
-            else:
-                bal = curr.left.height - curr.right.height
-            print(curr.toString(),"Bal",bal)
-
-            """determin and then ballence if required"""
-            if bal > 1:
-                curr = self.__ballenceNode__(curr, nextTracked+self.tracked)
-                #self.toString()
 
         else:
 
@@ -92,35 +74,21 @@ class AVLTree():
             if curr.right == None:
                 curr.right = baby
                 curr.calcHeight()
-                self.tracked = "R"
                 return curr
 
             """send baby to be added to right sub-tree, get balanced sub-tree"""
             curr.right = self.__adder__(curr.right, baby)
             curr.calcHeight()
-            nextTracked = "R"
 
-            """calculate height difference at node"""
-            if curr.left == None:
-                bal = 0 - curr.right.height
-            else:
-                bal = curr.left.height - curr.right.height
-            print(curr.toString(),"bal",bal)
-            
-            """determin and then ballence if required"""
-            if bal < -1:
-                curr = self.__ballenceNode__(curr, nextTracked+self.tracked)
-                #self.toString()
-                
-        """Update tracking info"""
-        self.tracked = nextTracked
+
+        curr = self.__ballenceNode__(curr)
         return curr
         
 
-    def __ballenceNode__(self, rotationNode, mode):
+    def __ballenceNode__(self, rotationNode):
     
-        print("TREE BEFORE")
-        self.toString()
+        # print("TREE BEFORE")
+        # self.toString()
         """
             ballence a node by rotating its decendents
         
@@ -134,7 +102,7 @@ class AVLTree():
             return None
         
         if rotationNode.left == None and rotationNode.right == None:
-            return None
+            return rotationNode
         elif(rotationNode.right == None):
             bal = rotationNode.left.height - 0
         elif(rotationNode.left == None):
@@ -143,34 +111,45 @@ class AVLTree():
             bal = rotationNode.left.height - rotationNode.right.height
         
         if bal < -1:
-            Mode = "R"
             spot = rotationNode.right
-            if rotationNode.left == None and rotationNode.right == None:
+            if spot.left == None and spot.right == None:
                 return None
-            elif(rotationNode.right == None):
-                bal = rotationNode.left.height - 0
-            elif(rotationNode.left == None):
-                bal = 0-rotationNode.right.height
+            elif(spot.right == None):
+                bal = spot.left.height - 0
+            elif(spot.left == None):
+                bal = 0-spot.right.height
             else:
-                bal = rotationNode.left.height - rotationNode.right.height
+                bal = spot.left.height - spot.right.height
+
+            if bal <= 0:
+                mode = "RR"
+                child = spot.right
+            if bal > 0:
+                mode = "RL"
+                child = spot.left
 
         elif bal > 1:
-            Mode = "L"
             spot = rotationNode.left
-            if rotationNode.left == None and rotationNode.right == None:
+            if spot.left == None and spot.right == None:
                 return None
-            elif(rotationNode.right == None):
-                bal = rotationNode.left.height - 0
-            elif(rotationNode.left == None):
-                bal = 0-rotationNode.right.height
+            elif(spot.right == None):
+                bal = spot.left.height - 0
+            elif(spot.left == None):
+                bal = 0-spot.right.height
             else:
-                bal = rotationNode.left.height - rotationNode.right.height
+                bal = spot.left.height - spot.right.height
 
+            if bal <= 0:
+                mode = "LR"
+                child = spot.right
+            if bal > 0:
+                mode = "LL"
+                child = spot.left
 
+        else:
+            return rotationNode
             
-
-
-        print("Ballencing Node",rotationNode.toString(),mode)
+        # print("Ballencing Node",rotationNode.toString(),mode)
 
         """semi-unnecisary, but it helped me conseptualize the prosses"""
         parent = rotationNode
@@ -178,10 +157,11 @@ class AVLTree():
         """rotation if the path to where baby was added begins from rotationNode with Left-Left"""
         if mode == "LL":
 
-            """keep track of nodes"""
-            spot = parent.left
-            if spot == None:
-                return None
+            if False:
+                """keep track of nodes"""
+                spot = parent.left
+                if spot == None:
+                    return None
 
             """do the rotation"""
             parent.left = spot.right
@@ -193,10 +173,11 @@ class AVLTree():
         """rotation for Right-Right path"""
         if mode == "RR":
 
-            """keep track of nodes"""
-            spot = parent.right
-            if spot == None:
-                return None
+            if False:
+                """keep track of nodes"""
+                spot = parent.right
+                if spot == None:
+                    return None
 
             """do the rotation"""
             parent.right = spot.left
@@ -208,13 +189,14 @@ class AVLTree():
         """roation for Left-Right path"""
         if mode == "LR":
 
-            """keep track of nodes"""
-            spot = parent.left
-            if spot == None:
-                return None
-            child = spot.right
-            if child == None:
-                return None
+            if False:
+                """keep track of nodes"""
+                spot = parent.left
+                if spot == None:
+                    return None
+                child = spot.right
+                if child == None:
+                    return None
 
             """do the rotation"""
             spot.right = child.left
@@ -229,13 +211,14 @@ class AVLTree():
         """rotation for Right-Left path"""
         if mode == "RL":
 
-            """keep track of nodes"""
-            spot = parent.right
-            if spot == None:
-                return None
-            child = spot.left
-            if child == None:
-                return None
+            if False:
+                """keep track of nodes"""
+                spot = parent.right
+                if spot == None:
+                    return None
+                child = spot.left
+                if child == None:
+                    return None
 
             """do the rotation"""
             spot.left = child.right
@@ -248,12 +231,79 @@ class AVLTree():
             return child
 
         """if Mode is not suported return None"""
-        return None
+        return parent
                 
     def remove(self, data):
-        # we could just create a new AVL Tree every time so we dont have to deal 
-        # with removal, or with changing the sorting data
-        pass
+        """
+        public starter function for removal methods
+        """
+
+        self.root = self.__remHelper(self.root,data)
+        return True
+
+    def __remHelper(self, curr, data):
+        """
+        recursive function to help remove() find the node to be removed
+
+        backtracks up the tree to calculate the new heights
+        """
+        if curr == None:
+            return None
+
+        if data == curr.data:
+            # print(curr.toString(),"is removal node")
+            return self.__removeNode(curr)
+
+        curr.left = self.__remHelper(curr.left, data)
+        curr.right = self.__remHelper(curr.right, data)
+
+        curr.calcHeight()
+        curr = self.__ballenceNode__(curr)
+        return curr
+
+    def __removeNode(self, curr):
+        """
+        remove a given node
+        returns the new subtree of this removed node to parent node
+        """
+    
+        """"No Children"""
+        if curr.right == None and curr.left == None:
+            # print(curr.toString(),"0 Child")
+            return None
+
+        """1 Child"""
+        if curr.right == None:
+            # print(curr.toString(),"1 Child Left")
+            return curr.left
+        if curr.left == None:
+            # print(curr.toString(),"1 Child Right")
+            return curr.right
+
+        """2 Children"""
+        # print(curr.toString(), "2 Children")
+        curr.left = self.__findChild(curr, curr.left)
+        curr.calcHeight()
+        return curr
+
+
+    def __findChild(self, rem, curr):
+        """
+        recursive function to fine right most left child
+        
+        input left of the removal node
+        return is the new left subtree of node to be removed
+        """
+
+        if curr.right == None:
+            # print(curr.toString(),"is right most child")
+            rem.data = curr.data
+            return curr.left
+
+        curr.right = self.__findChild(rem, curr.right)
+        curr.calcHeight()
+        curr = self.__ballenceNode__(curr)
+        return curr
 
     def append(self, data):
         """add data without ballencing"""
@@ -293,6 +343,9 @@ class AVLTree():
         return rtn
 
     def toString(self):
+
+        if False:
+            return
         
         prt = []
         i = 0
