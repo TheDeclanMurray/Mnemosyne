@@ -49,9 +49,17 @@ class RowNode():
         self.row[col] = data
         return True
 
+    def save(self):
+        rtn = []
+        for cell in self.row:
+            rtn.append("2 "+cell +"\n")
+        return rtn
+        
+
 class Data:
 
     def __init__(self):
+        self.name = "Untitled Document"
         self.title = [] # Array of the names of each column
         self.rows = [] # Array of all Row nodes
         self.visible = [] # Array of visible Row nodes
@@ -59,6 +67,25 @@ class Data:
         self.AVLs = [] # Array of AVLTrees, one for each column
         self.primarySort = -1 # the column number of the primary sort priority (-1 if none)
         self.secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
+
+    def save(self):
+        rtn = []
+        """Database Name"""
+        rtn.append("0 "+self.name+"\n")
+
+        """Titles"""
+        for col in self.title:
+            rtn.append("1 "+col+"\n")
+
+        """Data"""
+        for row in self.rows:
+            rowStrings = row.save()
+            rtn = rtn + rowStrings
+        lastString = rtn.pop()
+        lastString = lastString[:len(lastString)-1]
+        rtn.append(lastString)
+        
+        return rtn
 
     def search(self, search):
         """
@@ -111,7 +138,7 @@ class Data:
 
         """if length is smaller, then cycle through each substring"""
         spot = 0
-        while spot + sl < dl:
+        while spot + sl <= dl:
             if data[spot:spot+sl] == search:
                 return True
             spot +=1
@@ -305,6 +332,25 @@ class Data:
         """checking for valid inputs"""
         if type(data) != type.__str__:
             data = str(data)
+
+        try:
+            col = int(col)
+            if col >= len(self.title):
+                return False
+        except:
+            return False
+
+        if row == "t":
+            self.title[col] = data
+            self.__calcColLen__()
+            return True
+
+        try:
+            row = int(row)
+        except:
+            return False
+            
+
         if row >= len(self.visible):
             return False
         if col >= len(self.title):
@@ -359,12 +405,13 @@ class Data:
             ;retern boolean: True if no errors 
         """
 
+        self.columnLength = []
+
         """goes through each column"""
         col = 0
         while col < len(self.title):
             """check if the title is the longest string"""
-            if len(self.title[col]) > self.columnLength[col]:
-                self.columnLength[col] = len(self.title[col])
+            self.columnLength.append(len(self.title[col]))
 
             """check wich row holds the largest string for the column"""
             for r in self.rows:
@@ -380,11 +427,14 @@ class Data:
             ;retern boolean: True if no errors 
         """
 
+        
+        print(self.name)
+
         if len(self.title) == 0:
-            print("Database Empty")
+            print("Database Empty, add Column and Rows")
+            print()
             return False
 
-        print("")
 
         currRow = []
 
@@ -415,6 +465,7 @@ class Data:
             
             self.__printRow__(currRow,False)
 
+        print("")
         return True
             
     def __printRow__(self, row, isTitle):

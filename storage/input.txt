@@ -1,0 +1,21 @@
+0 input
+1 num
+1 Name
+1 Age
+1 Size
+1 Plus
+2 0
+2 James
+2 32
+2 here
+2 to be or not
+2 1
+2 Apple
+2 34
+2 kirt
+2 skirt
+2 2
+2 Bob Jefferson
+2 32
+2 Imfamus
+2 2nd

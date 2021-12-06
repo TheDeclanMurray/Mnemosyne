@@ -1,5 +1,7 @@
+from typing import Collection
 from Database import AVLTree
 from Database.Data import Data
+import os
 
 class intNode():
 
@@ -25,16 +27,75 @@ class AVLTester():
 
     def __init__(self):
 
+
+
         if False:
             self.newStuff()
         if False:
             self.AVL()
         if True:
-            self.data()
+            
+            self.data()        
+
+
+        if False:
+            self.readTxt("input.txt")
 
 
 
         pass
+
+    def saveData(self, saveFile, currDataBase):
+
+        if(saveFile != None):
+            with open(saveFile, "w") as f:
+                Lines = currDataBase.save()
+                for line in Lines:
+                    f.write(line)
+            f.close()
+        else:
+            return False
+
+    def readTxt(self, inputFile):
+
+        if(inputFile != None):    
+            with open(inputFile) as f:
+                text = f.readlines()
+            f.close()
+        else:    
+            return False
+
+        data = Data()
+        row = 0
+        col = 0
+        colLength = 0
+
+        for line in text:
+            txt = line[2:len(line)-1]
+            type = line[0:1]
+            if type == "0":
+                name = txt
+                data = Data()
+                data.name = name
+                data.addRow()
+                
+                
+            elif type == "1":
+                data.addCol(txt)
+                colLength += 1
+
+                
+            elif type == "2":
+                data.insert(txt,row,col)
+                col +=1
+                if col == colLength:
+                    data.addRow()
+                    row +=1
+                    col = 0
+
+        data.removeRow(len(data.rows)-1) 
+        return data
+        
 
     def newStuff(self):
         import numpy
@@ -59,82 +120,139 @@ class AVLTester():
     def data(self):
 
         data = Data()
+        saved = True
+        ErrorTxt = ""
         
-        data.addCol("num")
-        data.addCol("Name")
-        data.addCol("Age")
-        data.addCol("Size")
+        comand = 'clear'
+        if os.name in ('nt', 'dos'):
+            comand = "cls"
+        os.system(comand)
         
-        data.addRow()
-        data.addRow()
-        data.addRow()
-        data.addRow()
-        
-
-
-        data.insert("James",0,1)
-        data.insert("Bob Jefferson",3,1)
-        data.insert("Zebra",2,1)
-        data.insert("Apple",1,1)
-
-        data.insert("32",0,2)
-        data.insert("32",1,2)
-        data.insert("30",2,2)
-        data.insert("32",3,2)
-
-        data.insert("0",0,0)
-        data.insert("1",1,0)
-        data.insert("2",2,0)
-        data.insert("3",3,0)  
-          
-             
-        
-        data.addCol("Plus")
-        data.addRow()
-        data.addRow()
-
-        data.insert("4",4,0)
-        data.insert("5",5,0)
-        
-
-
-        
-        
-
+        print("")
         data.toString()
-        instructions = "Q quit, I insert, D delete row or column, R add row, C add column, S search, T sort"
+        instructions = """   Q quit, I insert, D delete row or column R add row, C add column, 
+   F search, T sort, S save , A save as, O open, K delete page, N new page """
+
         print(instructions)
         input1 = input("Input: ")
         while input1 != "Q":
             if input1 == "I":
-                row = int(input("Row: "))
-                col = int(input("Column: "))
+                row = input("Row: ")
+                col = input("Column: ")
                 info = input("Data: ")
                 data.insert(info,row,col)
+                saved = False
             elif input1 == "D":
                 rem = input("Row or Column: ")
                 if rem.lower() == "row":
                     row = int(input("Row: "))
                     data.removeRow(row)
-                elif rem.lower() == "col" or rem.lower == "column":
+                elif rem.lower() == "col" or rem.lower() == "column":
                     col = int(input("Column: "))
                     data.removeCol(col)
+                saved = False
             elif input1 == "C":
                 name = input("Column Name: ")
                 data.addCol(name)
+                saved = False
             elif input1 == "R":
                 data.addRow()
-            elif input1 == "S":
+                saved = False
+            elif input1 == "F":
                 search = input("Search: ")
                 data.search(search)
             elif input1 == "T":
                 primary = input("Primary: ")
                 secondary = input("Secondary: ")
                 data.sort(primary,secondary)
+            elif input1 == "O":
 
+                if not saved:
+                    saveSugestion = input("Save Work(Y/N)? ")
+                    if saveSugestion == "Y":
+                        outputFile = "storage/" + data.name + ".txt"
+                        try: 
+                            self.saveData(outputFile, data)
+                            saved = True
+                        except Exception as a:
+                            ErrorTxt = a
+
+                inputfile = input("Open: ")
+                inputfile = "storage/" + inputfile + ".txt"
+                 
+                rtn = False
+                try: 
+                    rtn = self.readTxt(inputfile)
+                except Exception as a:
+                    ErrorTxt = a
+
+                if rtn != False:
+                    data = rtn
+
+                saved = True
+            elif input1 == "S":
+                outputFile = "storage/" + data.name + ".txt"
+                try: 
+                    self.saveData(outputFile, data)
+                    saved = True
+                except Exception as a:
+                    ErrorTxt = a
+            elif input1 == "A":
+                outputFile = input("Save as: ")
+                data.name = outputFile
+                outputFile = "storage/" + outputFile + ".txt"
+                try: 
+                    self.saveData(outputFile, data)
+                except Exception as a:
+                    ErrorTxt = a
+            elif input1 == "K":
+                fileName = "storage/" + data.name + ".txt"
+                try:
+                    os.remove(fileName)
+                except:
+                    pass
+                data = Data()
+            elif input1 == "N":
+
+                if not saved:
+                    saveSugestion = input("Save Work(Y/N)? ")
+                    if saveSugestion == "Y":
+                        outputFile = "storage/" + data.name + ".txt"
+                        try: 
+                            self.saveData(outputFile, data)
+                            saved = True
+                        except Exception as a:
+                            ErrorTxt = a
+                
+                data = Data()
+
+            comand = 'clear'
+            if os.name in ('nt', 'dos'):
+                comand = "cls"
+            os.system(comand)
+
+            print(ErrorTxt)
+            ErrorTxt = ""
             data.toString()
             print(instructions)
             input1 = input("Input: ")
+
+        if not saved:
+            saveSugestion = input("Save Work(Y/N)? ")
+            if saveSugestion == "Y":
+                outputFile = "storage/" + data.name + ".txt"
+                try: 
+                    self.saveData(outputFile, data)
+                    saved = True
+                except Exception as a:
+                    ErrorTxt = a
+        
+        comand = 'clear'
+        if os.name in ('nt', 'dos'):
+            comand = "cls"
+        os.system(comand)
+
+
 
     def AVL(self):
 
