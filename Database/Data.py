@@ -3,6 +3,7 @@
 from numpy.core.fromnumeric import partition
 from Database.AVLTree import AVLTree
 
+
 import numpy 
 
 class RowNode():
@@ -81,9 +82,6 @@ class Data:
         for row in self.rows:
             rowStrings = row.save()
             rtn = rtn + rowStrings
-        lastString = rtn.pop()
-        lastString = lastString[:len(lastString)-1]
-        rtn.append(lastString)
         
         return rtn
 
@@ -189,19 +187,16 @@ class Data:
         temp = [prev]
         while i < len(self.rows):
             curr = primary[i]
-            # print(curr.toString())
 
             """if curr is the same as prev, add curr to the temp list"""
             if prev.row[self.primarySort] == curr.row[self.primarySort]:
                 temp.append(curr)
-                # print(curr.toString(),"prev is the same")
             else:
                 """create a new AVLTree and add temp list of the same primary value to it"""
                 secondaryAVL = AVLTree()
                 for t in temp:
                     t.sortPriority = self.secondarySort
                     secondaryAVL.add(t)
-                # secondaryAVL.toString()
                 temp = secondaryAVL.inOrder()
                 
                 """add the secondary order to the final order"""
@@ -215,7 +210,6 @@ class Data:
         for t in temp:
             t.sortPriority = self.secondarySort
             secondaryAVL.add(t)
-        # secondaryAVL.toString()
         temp = secondaryAVL.inOrder()
         secondarySet += temp
 
@@ -235,7 +229,7 @@ class Data:
         baby = RowNode()
 
         """Fill in new row with apropriate number of columns"""
-        for r in self.title:
+        for i in range(len(self.title)):
             baby.row.append("")
 
         """add the row to the bottom of the rows"""

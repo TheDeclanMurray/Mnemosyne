@@ -2,6 +2,7 @@ from typing import Collection
 from Database import AVLTree
 from Database.Data import Data
 import os
+import urwid
 
 class intNode():
 
@@ -33,15 +34,20 @@ class AVLTester():
             self.newStuff()
         if False:
             self.AVL()
-        if True:
             
-            self.data()        
 
 
-        if False:
-            self.readTxt("input.txt")
 
+        pass
 
+    def frontEnd(self):
+
+        cells = []
+        cel = urwid.FlowWidget()
+        
+        cells.append(cel)
+        thing = urwid.GridFlow()
+        thing
 
         pass
 
@@ -96,7 +102,6 @@ class AVLTester():
         data.removeRow(len(data.rows)-1) 
         return data
         
-
     def newStuff(self):
         import numpy
         simp = [3,5,9]
@@ -131,7 +136,7 @@ class AVLTester():
         print("")
         data.toString()
         instructions = """   Q quit, I insert, D delete row or column R add row, C add column, 
-   F search, T sort, S save , A save as, O open, K delete page, N new page """
+        F search, T sort, S save , A save as, O open, K delete page, N new page """
 
         print(instructions)
         input1 = input("Input: ")
@@ -251,8 +256,6 @@ class AVLTester():
         if os.name in ('nt', 'dos'):
             comand = "cls"
         os.system(comand)
-
-
 
     def AVL(self):
 
