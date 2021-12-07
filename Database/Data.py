@@ -1,15 +1,11 @@
 
-
-from numpy.core.fromnumeric import partition
 from Database.AVLTree import AVLTree
-
-
-import numpy 
+from Database.DArray import DArray, DArrayItorator 
 
 class RowNode():
 
-    def __init__(self):
-        self.row = []
+    def __init__(self, len = 4):
+        self.row = DArray(4)
         self.sortPriority = 0
         pass
     
@@ -27,13 +23,13 @@ class RowNode():
         if(node == None):
             return 1
 
-        if node.row[self.sortPriority] == "":
+        if node.row.get(self.sortPriority) == "":
             return -1
-        if self.row[self.sortPriority] == "":
+        if self.row.get(self.sortPriority) == "":
             return 1
-        if self.row[self.sortPriority] < node.row[self.sortPriority]:
+        if self.row.get(self.sortPriority) < node.row.get(self.sortPriority):
             return -1
-        if self.row[self.sortPriority] > node.row[self.sortPriority]:
+        if self.row.get(self.sortPriority) > node.row.get(self.sortPriority):
             return 1
         return 0
 
@@ -47,13 +43,20 @@ class RowNode():
         """
         if type(data) != type.__str__:    
             data = str(data)
-        self.row[col] = data
+        self.row.put(data,col)
         return True
 
     def save(self):
-        rtn = []
+        """
+            returns a python array of how to save the cell data
+
+            ;return rtn: python array
+        """
+
+        rtn = DArray()
         for cell in self.row:
-            rtn.append("2 "+cell +"\n")
+            add = "2 "+cell +"\n"
+            rtn.append(add)
         return rtn
         
 
@@ -61,16 +64,16 @@ class Data:
 
     def __init__(self):
         self.name = "Untitled Document"
-        self.title = [] # Array of the names of each column
-        self.rows = [] # Array of all Row nodes
-        self.visible = [] # Array of visible Row nodes
-        self.columnLength = [] # Array keeping track of the max lenght of each collum
-        self.AVLs = [] # Array of AVLTrees, one for each column
+        self.title = DArray() # Array of the names of each column
+        self.rows = DArray() # Array of all Row nodes
+        self.visible = DArray() # Array of visible Row nodes
+        self.columnLength = DArray() # Array keeping track of the max lenght of each collum
+        self.AVLs = DArray() # Array of AVLTrees, one for each column
         self.primarySort = -1 # the column number of the primary sort priority (-1 if none)
         self.secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
 
     def save(self):
-        rtn = []
+        rtn = DArray(self.title.length+1)
         """Database Name"""
         rtn.append("0 "+self.name+"\n")
 
@@ -78,10 +81,11 @@ class Data:
         for col in self.title:
             rtn.append("1 "+col+"\n")
 
+        print("Before addArray",rtn.printable())
         """Data"""
         for row in self.rows:
             rowStrings = row.save()
-            rtn = rtn + rowStrings
+            rtn = rtn.addArray(rowStrings)
         
         return rtn
 
@@ -99,7 +103,7 @@ class Data:
             return True
 
         """create new visible list"""
-        self.visible = []
+        self.visible = DArray()
 
         """Cycle through the Rows"""
         for node in self.rows:
@@ -160,10 +164,10 @@ class Data:
             
         """Cicle through titles to deturmine sorting"""
         spot = 0
-        while spot < len(self.title):
-            if self.title[spot] == sortPrimary:
+        while spot < self.title.length:
+            if self.title.get(spot) == sortPrimary:
                 self.primarySort = spot
-            elif self.title[spot] == sortSecondary:
+            elif self.title.get(spot) == sortSecondary:
                 self.secondarySort = spot
             spot += 1
 
@@ -172,8 +176,8 @@ class Data:
             return True
 
         """get the in order of the right AVL tree"""
-        primary = self.AVLs[self.primarySort].inOrder()
-        secondarySet = []
+        primary = self.AVLs.get(self.primarySort).inOrder()
+        secondarySet = DArray()
 
         """if no secondary sort"""
         if self.secondarySort == -1:
@@ -183,13 +187,14 @@ class Data:
 
         """if secondary sort specified"""
         i = 1
-        prev = primary[0]
-        temp = [prev]
-        while i < len(self.rows):
-            curr = primary[i]
+        prev = primary.get(0)
+        temp = DArray()
+        temp.append(prev)
+        while i < self.rows.length:
+            curr = primary.get(i)
 
             """if curr is the same as prev, add curr to the temp list"""
-            if prev.row[self.primarySort] == curr.row[self.primarySort]:
+            if prev.row.get(self.primarySort) == curr.row.get(self.primarySort):
                 temp.append(curr)
             else:
                 """create a new AVLTree and add temp list of the same primary value to it"""
@@ -200,8 +205,9 @@ class Data:
                 temp = secondaryAVL.inOrder()
                 
                 """add the secondary order to the final order"""
-                secondarySet += temp
-                temp = [curr]
+                secondarySet = secondarySet.addArray(temp)
+                temp = DArray()
+                temp.append(curr)
             i += 1
             prev = curr
         
@@ -211,7 +217,7 @@ class Data:
             t.sortPriority = self.secondarySort
             secondaryAVL.add(t)
         temp = secondaryAVL.inOrder()
-        secondarySet += temp
+        secondarySet = secondarySet.addArray(temp)
 
         self.rows = secondarySet
         self.visible = self.rows.copy()
@@ -221,15 +227,14 @@ class Data:
     def addRow(self):
         """
             Add an empty row to the bottom of the table
-        
        
             ;retern boolean: True if no errors 
         """
 
-        baby = RowNode()
+        baby = RowNode(self.title.size)
 
         """Fill in new row with apropriate number of columns"""
-        for i in range(len(self.title)):
+        for i in range(self.title.length):
             baby.row.append("")
 
         """add the row to the bottom of the rows"""
@@ -237,10 +242,10 @@ class Data:
 
         """add new row to the AVL Trees with correct sort priority"""
         i = 0
-        while i < len(self.AVLs):
+        while i < self.AVLs.length:
             for node in self.rows:
                 node.sortPriority = i
-            self.AVLs[i].add(baby)
+            self.AVLs.get(i).add(baby)
             i += 1
         
         self.visible = self.rows.copy()
@@ -270,7 +275,7 @@ class Data:
         """add each row to the new avl tree, with apropriate sortPriority"""
         for row in self.rows:
             row.row.append("")
-            row.sortPriority = len(self.title)-1
+            row.sortPriority = self.title.length-1
             avl.add(row)
 
         self.visible = self.rows.copy()
@@ -286,11 +291,21 @@ class Data:
         """
 
         """if valid input"""
-        if row < len(self.visible):
+        if row < self.visible.length:
             """remove node from visible and rows"""
-            node = self.visible[row]
-            self.visible.pop(row)
-            self.rows.remove(node)
+            node = self.visible.get(row)
+            self.visible.remove(row)
+            self.rows.remove(row)
+
+            """remove the row from every AVL tree"""
+            col = 0
+            for avl in self.AVLs:
+                for row in self.rows:
+                    row.sortPriority = col
+                avl.remove(node)
+                col +=1
+
+            self.__calcColLen__()
             return True
         return False
 
@@ -303,13 +318,13 @@ class Data:
         """
 
         """if valid input"""
-        if col < len(self.title):
+        if col < self.title.length:
             """remove column from every row"""
-            self.title.pop(col)
-            self.AVLs.pop(col)
-            self.columnLength.pop(col)
+            self.title.remove(col)
+            self.AVLs.remove(col)
+            self.columnLength.remove(col)
             for node in self.rows:
-                node.row.remove(node.row[col])
+                node.row.remove(col)
             return True
         return False
 
@@ -329,13 +344,13 @@ class Data:
 
         try:
             col = int(col)
-            if col >= len(self.title):
+            if col >= self.title.length:
                 return False
         except:
             return False
 
         if row == "t":
-            self.title[col] = data
+            self.title.put(data, col)
             self.__calcColLen__()
             return True
 
@@ -345,26 +360,26 @@ class Data:
             return False
             
 
-        if row >= len(self.visible):
+        if row >= self.visible.length:
             return False
-        if col >= len(self.title):
+        if col >= self.title.length:
             return False
 
         """get the rowNode"""
-        r = self.visible[row]
+        r = self.visible.get(row)
 
         """set sorting prioity for all nodes"""
         for node in self.rows:
             node.sortPriority = col
 
         """remove the row node from the AVL of the column"""
-        self.AVLs[col].remove(r)
+        self.AVLs.get(col).remove(r)
 
         """change the data of the correct column and row"""
         r.put(data,col)
 
         """add the row back to the AVL of the column"""
-        self.AVLs[col].add(r)
+        self.AVLs.get(col).add(r)
 
         """re-calculate column length with the new addition"""
         self.__calcColLen__()
@@ -381,14 +396,14 @@ class Data:
         """
 
         """checking for valid inputs"""
-        if col >= len(self.title):
+        if col >= self.title.length:
             return None
-        if row >= len(self.visible):
+        if row >= self.visible.length:
             return None
 
         """return"""
-        node = self.visible[row]
-        data = node.row[col]
+        node = self.visible.get(row)
+        data = node.row.get(col)
         return data
 
     def __calcColLen__(self):
@@ -399,18 +414,18 @@ class Data:
             ;retern boolean: True if no errors 
         """
 
-        self.columnLength = []
+        self.columnLength = DArray()
 
         """goes through each column"""
         col = 0
-        while col < len(self.title):
+        while col < self.title.length:
             """check if the title is the longest string"""
-            self.columnLength.append(len(self.title[col]))
+            self.columnLength.append(len(self.title.get(col)))
 
             """check wich row holds the largest string for the column"""
             for r in self.rows:
-                if len(r.row[col]) > self.columnLength[col]:
-                    self.columnLength[col] = len(r.row[col])
+                if len(r.row.get(col)) > self.columnLength.get(col):
+                    self.columnLength.put(len(r.row.get(col)), col)
             col += 1
         return True
 
@@ -424,21 +439,21 @@ class Data:
         
         print(self.name)
 
-        if len(self.title) == 0:
+        if self.title.length == 0:
             print("Database Empty, add Column and Rows")
             print()
             return False
 
 
-        currRow = []
+        currRow = DArray()
 
         """Print title"""
         spot = 0
-        while spot < len(self.title):
+        while spot < self.title.length:
             
             """add ' ' to reach len"""
-            numSpace = self.columnLength[spot] - len(self.title[spot])
-            full = self.title[spot] + " "*(numSpace)
+            numSpace = self.columnLength.get(spot) - len(self.title.get(spot))
+            full = self.title.get(spot) + " "*(numSpace)
             currRow.append(full)
             spot += 1
             
@@ -446,14 +461,14 @@ class Data:
 
         """print visible rows"""
         for row in self.visible:
-            currRow = []
+            currRow = DArray()
             spot = 0
             """goes through all the spots in row"""
-            while spot < len(self.title):
+            while spot < self.title.length:
 
                 """add ' ' to reach len"""
-                numSpace = self.columnLength[spot] - len(row.row[spot])
-                full = " "*(numSpace) + row.row[spot]
+                numSpace = self.columnLength.get(spot) - len(row.row.get(spot))
+                full = " "*(numSpace) + row.row.get(spot)
                 currRow.append(full)
                 spot += 1
             

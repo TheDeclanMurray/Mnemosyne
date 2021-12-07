@@ -10,3 +10,5 @@ if __name__ == "__main__":
     # x = AVLTester()
     p = Prompter()
     p.terminalPrompter()
+
+    pass

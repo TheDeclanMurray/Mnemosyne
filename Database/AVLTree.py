@@ -1,3 +1,5 @@
+from Database.DArray import DArray
+
 class Tnode():
 
     def __init__(self, data):
@@ -327,7 +329,7 @@ class AVLTree():
         return False
 
     def inOrder(self):
-        rtn = []
+        rtn = DArray()
         if self.root == None:
             print("Root is None")
 

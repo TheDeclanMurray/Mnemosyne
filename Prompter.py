@@ -6,7 +6,7 @@ class Prompter():
     def __init__(self):
         self.dataBase = Data()
         self.saveStatus = True
-        self.errorText = ""
+        self.errorText = []
         self.instructions = """   Q quit, I insert, D delete row or column R add row, C add column, 
    F search, T sort, S save , A save as, O open, K delete page, N new page """
 
@@ -63,7 +63,7 @@ class Prompter():
                 try: 
                     rtn = self.openData(inputfile)
                 except Exception as a:
-                    self.errorText += a
+                    self.errorText.append(a)
 
                 if rtn != False:
                     self.dataBase = rtn
@@ -74,7 +74,8 @@ class Prompter():
                     self.saveData(outputFile, self.dataBase)
                     self.saveStatus = True
                 except Exception as a:
-                    self.errorText += a
+                    self.errorText.append(a)
+
             elif input1 == "A":
                 outputFile = input("Save as: ")
                 self.dataBase.name = outputFile
@@ -82,7 +83,8 @@ class Prompter():
                 try: 
                     self.saveData(outputFile, self.dataBase)
                 except Exception as a:
-                    self.errorText += a
+                    self.errorText.append(a)
+
             elif input1 == "K":
                 fileName = "storage/" + self.dataBase.name + ".txt"
                 try:
@@ -90,30 +92,35 @@ class Prompter():
                 except:
                     pass
                 self.dataBase = Data()
+
             elif input1 == "N":
 
                 if not self.saveStatus:
                     self.savePrompt()
                     
-                
                 self.dataBase = Data()
+                self.saveStatus = True
+
 
             input1 = self.handleTerminal()
 
         if not self.saveStatus:
             self.savePrompt(self.dataBase)
-        
         self.handleTerminal(False)
 
+
     def handleTerminal(self, rePrint = True):
-        comand = 'clear'
-        if os.name in ('nt', 'dos'):
-            comand = "cls"
-        os.system(comand)
+
+        if(False):
+            comand = 'clear'
+            if os.name in ('nt', 'dos'):
+                comand = "cls"
+            os.system(comand)
 
         if rePrint:
-            print(self.errorText)
-            self.errorText = ""
+            for a in self.errorText:
+                print(a)
+            self.errorText = []
             self.dataBase.toString()
             print(self.instructions)
             rtn = input("Input: ")
@@ -127,7 +134,7 @@ class Prompter():
             try: 
                 self.saveData(outputFile, data)
             except Exception as a:
-                self.errorText = a
+                self.errorText.append(a)
         self.saveStatus = True
 
 
@@ -168,15 +175,17 @@ class Prompter():
                     row +=1
                     col = 0
 
-        data.removeRow(len(data.rows)-1) 
+        data.removeRow(data.rows.length-1) 
         return data
         
 
     def saveData(self, saveFile, currDataBase):
 
+        print("SaveData Running")
         if(saveFile != None):
             with open(saveFile, "w") as f:
                 Lines = currDataBase.save()
+                print("line",Lines.printable())
                 for line in Lines:
                     f.write(line)
             f.close()
