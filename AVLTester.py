@@ -35,17 +35,6 @@ class AVLTester():
 
     def frontEnd(self):
         
-        from colorama import init
-        from colorama import Fore, Back, Style
-
-        init()
-
-        # print(Fore.BLACK + 'some red text')
-        print("here it is "+Fore.BLACK+Back.WHITE + "middle" +Style.RESET_ALL+" temp")
-        # print(Style.RESET_ALL)
-        
-        print('back to normal now')
-        
         pass
 
     def AVL(self):

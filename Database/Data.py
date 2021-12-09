@@ -73,30 +73,26 @@ class Data:
         self.__AVLs = DArray() # Array of AVLTrees, one for each column
         self.__primarySort = -1 # the column number of the primary sort priority (-1 if none)
         self.__secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
-        self.__selectedRow = 0
-        self.__selectedCol = 0
+        self.selectedRow = 0
+        self.selectedCol = 0
 
     def selectCell(self, comand):
 
         if comand == "right":
-            if self.__selectedCol+1 < self.title.length:
-                self.__selectedCol +=1
-                print("   ",self.__selectedRow,self.__selectedCol)
+            if self.selectedCol+1 < self.title.length:
+                self.selectedCol +=1
                 return True
         if comand == "left":
-            if self.__selectedCol > 0:
-                self.__selectedCol -=1
-                print("   ",self.__selectedRow,self.__selectedCol)
+            if self.selectedCol > 0:
+                self.selectedCol -=1
                 return True
         if comand == "up":
-            if self.__selectedRow > 0:
-                self.__selectedRow -=1
-                print("   ",self.__selectedRow,self.__selectedCol)
+            if self.selectedRow > 0:
+                self.selectedRow -=1
                 return True
         if comand == "down":
-            if self.__selectedRow +1 < self.rows.length:
-                self.__selectedRow +=1
-                print("   ",self.__selectedRow,self.__selectedCol)
+            if self.selectedRow +1 < self.rows.length:
+                self.selectedRow +=1
                 return True
 
         return False
@@ -110,7 +106,6 @@ class Data:
         for col in self.title:
             rtn.append("1 "+col+"\n")
 
-        print("Before addArray",rtn.printable())
         """Data"""
         for row in self.rows:
             rowStrings = row.save()
@@ -367,9 +362,9 @@ class Data:
             :retern boolean: True if no errors 
         """
         if row == None:
-            row = self.__selectedRow
+            row = self.selectedRow
         if col == None:
-            col = self.__selectedCol
+            col = self.selectedCol
 
         """checking for valid inputs"""
         if type(data) != type.__str__:
@@ -503,7 +498,7 @@ class Data:
                 """add ' ' to reach len"""
                 numSpace = self.columnLength.get(spot) - len(row.row.get(spot))
                 full = " "*(numSpace) + row.row.get(spot)
-                if col == self.__selectedRow and spot == self.__selectedCol:
+                if col == self.selectedRow and spot == self.selectedCol:
                     full = Back.WHITE +Fore.BLACK + full + Back.BLACK + Fore.GREEN
                 currRow.append(full)
                 spot += 1

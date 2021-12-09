@@ -30,11 +30,11 @@ class Prompter():
             elif input1 == "D":
                 rem = input("Row or Column: ")
                 if rem.lower() == "row":
-                    # kb.press(self.dataBase.__selectedRow)
+                    kb.press(str(self.dataBase.selectedRow))
                     row = int(input(Fore.GREEN + "Row: "))
                     self.dataBase.removeRow(row)
                 elif rem.lower() == "col" or rem.lower() == "column":
-                    # kb.press(self.dataBase.__selectedCol)
+                    kb.press(str(self.dataBase.selectedCol))
                     col = int(input(Fore.GREEN +  "Column: "))
                     self.dataBase.removeCol(col)
                 self.saveStatus = False
@@ -45,7 +45,7 @@ class Prompter():
                 self.saveStatus = False
 
             elif input1 == "R":
-                self.dataBase.addRo
+                self.dataBase.addRow()
                 self.saveStatus = False
 
             elif input1 == "F":
@@ -156,12 +156,8 @@ class Prompter():
         listener.join()
         
         self.controler.press(Key.esc)
-
-        # time.sleep(1)
         
         return self.rtn
-
-        pass
 
     def handleTerminal(self, rePrint = True):
 
@@ -236,11 +232,9 @@ class Prompter():
 
     def saveData(self, saveFile, currDataBase):
 
-        print("SaveData Running")
         if(saveFile != None):
             with open(saveFile, "w") as f:
                 Lines = currDataBase.save()
-                print("line",Lines.printable())
                 for line in Lines:
                     f.write(line)
             f.close()
