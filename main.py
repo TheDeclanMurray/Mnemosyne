@@ -1,6 +1,4 @@
 
-
-from AVLTester import AVLTester
 from Prompter import Prompter
 
 
