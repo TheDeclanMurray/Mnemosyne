@@ -1,7 +1,8 @@
 
-from re import T
+
 from Database.AVLTree import AVLTree
-from Database.DArray import DArray, DArrayItorator 
+from Database.DArray import DArray
+from colorama import Fore, Back, Style 
 
 class RowNode():
 
@@ -356,7 +357,7 @@ class Data:
             return True
         return False
 
-    def insert(self, data, row, col):
+    def insert(self, data, row = None, col = None):
         """
             Insert data at a specific cell
         
@@ -365,6 +366,10 @@ class Data:
             :param col: column to be inserted at
             :retern boolean: True if no errors 
         """
+        if row == None:
+            row = self.__selectedRow
+        if col == None:
+            col = self.__selectedCol
 
         """checking for valid inputs"""
         if type(data) != type.__str__:
@@ -465,7 +470,7 @@ class Data:
         """
 
         
-        print(self.name)
+        print(Fore.GREEN +self.name)
 
         if self.title.length == 0:
             print("Database Empty, add Column and Rows")
@@ -488,6 +493,7 @@ class Data:
         self.__printRow__(currRow,True)
 
         """print visible rows"""
+        col = 0
         for row in self.visible:
             currRow = DArray()
             spot = 0
@@ -497,10 +503,13 @@ class Data:
                 """add ' ' to reach len"""
                 numSpace = self.columnLength.get(spot) - len(row.row.get(spot))
                 full = " "*(numSpace) + row.row.get(spot)
+                if col == self.__selectedRow and spot == self.__selectedCol:
+                    full = Back.WHITE +Fore.BLACK + full + Back.BLACK + Fore.GREEN
                 currRow.append(full)
                 spot += 1
             
             self.__printRow__(currRow,False)
+            col += 1
 
         print("")
         return True

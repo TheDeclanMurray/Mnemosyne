@@ -1,7 +1,11 @@
+from pynput import keyboard
 from pynput.keyboard import Key, Controller
 from Database.Data import Data
 import os
 import time
+from colorama import Fore, Back, Style
+import keyboard as kb
+
 
 class Prompter():
 
@@ -10,48 +14,47 @@ class Prompter():
         self.dataBase = Data()
         self.saveStatus = True
         self.errorText = []
-        self.instructions = """   Q quit, I insert, D delete row or column R add row, C add column, 
-   F search, T sort, S save , A save as, O open, K delete page, N new page """
+        self.instructions = Fore.RED + """   Q quit, I insert, D delete row or column R add row, C add column, 
+   F search, T sort, S save , A save as, O open, K delete page, N new page """ + Style.RESET_ALL
 
 
     def terminalPrompter(self):
-
         input1 = self.handleTerminal()
         while input1 != "Q":
 
             if input1 == "I":
-                row = input("Row: ")
-                col = input("Column: ")
-                info = input("Cell Contents: ")
-                self.dataBase.insert(info,row,col)
+                info = input(Fore.GREEN + "Cell Contents: ")
+                self.dataBase.insert(info)
                 self.saveStatus = False
 
             elif input1 == "D":
                 rem = input("Row or Column: ")
                 if rem.lower() == "row":
-                    row = int(input("Row: "))
+                    # kb.press(self.dataBase.__selectedRow)
+                    row = int(input(Fore.GREEN + "Row: "))
                     self.dataBase.removeRow(row)
                 elif rem.lower() == "col" or rem.lower() == "column":
-                    col = int(input("Column: "))
+                    # kb.press(self.dataBase.__selectedCol)
+                    col = int(input(Fore.GREEN +  "Column: "))
                     self.dataBase.removeCol(col)
                 self.saveStatus = False
 
             elif input1 == "C":
-                name = input("Column Name: ")
+                name = input(Fore.GREEN + "Column Name: ")
                 self.dataBase.addCol(name)
                 self.saveStatus = False
 
             elif input1 == "R":
-                self.dataBase.addRow()
+                self.dataBase.addRo
                 self.saveStatus = False
 
             elif input1 == "F":
-                search = input("Search: ")
+                search = input(Fore.GREEN + "Search: ")
                 self.dataBase.search(search)
 
             elif input1 == "T":
-                primary = input("Primary: ")
-                secondary = input("Secondary: ")
+                primary = input(Fore.GREEN + "Primary: ")
+                secondary = input(Fore.GREEN + "Secondary: ")
                 self.dataBase.sort(primary,secondary)
 
             elif input1 == "O":
@@ -59,7 +62,7 @@ class Prompter():
                 if not self.saveStatus:
                     self.savePrompt(self.dataBase)
 
-                inputfile = input("Open: ")
+                inputfile = input(Fore.GREEN + "Open: ")
                 inputfile = "storage/" + inputfile + ".txt"
                  
                 rtn = False
@@ -109,7 +112,9 @@ class Prompter():
 
         if not self.saveStatus:
             self.savePrompt(self.dataBase)
+        print(Style.RESET_ALL)
         self.handleTerminal(False)
+
 
     def userInput(self):
 
@@ -121,6 +126,8 @@ class Prompter():
             #     print("Key is esc")
             #     return False
             if key == Key.shift:
+                return
+            if key == Key.ctrl:
                 return
 
             try:
