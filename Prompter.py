@@ -1,5 +1,7 @@
 from Database.Data import Data
 import os
+from colorama import Fore, Back, Style
+
 
 class Prompter():
 
@@ -7,34 +9,33 @@ class Prompter():
         self.dataBase = Data()
         self.saveStatus = True
         self.errorText = []
-        self.instructions = """   Q quit, I insert, D delete row or column R add row, C add column, 
+        self.instructions = Fore.RED + """   Q quit, I insert, D delete row or column R add row, C add column, 
    F search, T sort, S save , A save as, O open, K delete page, N new page """
 
 
     def terminalPrompter(self):
-        
         input1 = self.handleTerminal()
         while input1 != "Q":
 
             if input1 == "I":
-                row = input("Row: ")
-                col = input("Column: ")
-                info = input("Cell Contents: ")
+                row = input(Fore.GREEN + "Row: ")
+                col = input(Fore.GREEN + "Column: ")
+                info = input(Fore.GREEN + "Cell Contents: ")
                 self.dataBase.insert(info,row,col)
                 self.saveStatus = False
 
             elif input1 == "D":
                 rem = input("Row or Column: ")
                 if rem.lower() == "row":
-                    row = int(input("Row: "))
+                    row = int(input(Fore.GREEN + "Row: "))
                     self.dataBase.removeRow(row)
                 elif rem.lower() == "col" or rem.lower() == "column":
-                    col = int(input("Column: "))
+                    col = int(input(Fore.GREEN +  "Column: "))
                     self.dataBase.removeCol(col)
                 self.saveStatus = False
 
             elif input1 == "C":
-                name = input("Column Name: ")
+                name = input(Fore.GREEN + "Column Name: ")
                 self.dataBase.addCol(name)
                 self.saveStatus = False
 
@@ -43,12 +44,12 @@ class Prompter():
                 self.saveStatus = False
 
             elif input1 == "F":
-                search = input("Search: ")
+                search = input(Fore.GREEN + "Search: ")
                 self.dataBase.search(search)
 
             elif input1 == "T":
-                primary = input("Primary: ")
-                secondary = input("Secondary: ")
+                primary = input(Fore.GREEN + "Primary: ")
+                secondary = input(Fore.GREEN + "Secondary: ")
                 self.dataBase.sort(primary,secondary)
 
             elif input1 == "O":
@@ -56,7 +57,7 @@ class Prompter():
                 if not self.saveStatus:
                     self.savePrompt(self.dataBase)
 
-                inputfile = input("Open: ")
+                inputfile = input(Fore.GREEN + "Open: ")
                 inputfile = "storage/" + inputfile + ".txt"
                  
                 rtn = False
@@ -118,12 +119,13 @@ class Prompter():
             os.system(comand)
 
         if rePrint:
+            os.system('clear')
             for a in self.errorText:
                 print(a)
             self.errorText = []
             self.dataBase.toString()
             print(self.instructions)
-            rtn = input("Input: ")
+            rtn = input(Fore.MAGENTA + "Input: ")
             return rtn
 
     def savePrompt(self, data):
