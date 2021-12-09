@@ -1,11 +1,12 @@
 
+from re import T
 from Database.AVLTree import AVLTree
 from Database.DArray import DArray, DArrayItorator 
 
 class RowNode():
 
     def __init__(self, len = 4):
-        self.row = DArray(4)
+        self.row = DArray(len)
         self.sortPriority = 0
         pass
     
@@ -68,9 +69,36 @@ class Data:
         self.rows = DArray() # Array of all Row nodes
         self.visible = DArray() # Array of visible Row nodes
         self.columnLength = DArray() # Array keeping track of the max lenght of each collum
-        self.AVLs = DArray() # Array of AVLTrees, one for each column
-        self.primarySort = -1 # the column number of the primary sort priority (-1 if none)
-        self.secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
+        self.__AVLs = DArray() # Array of AVLTrees, one for each column
+        self.__primarySort = -1 # the column number of the primary sort priority (-1 if none)
+        self.__secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
+        self.__selectedRow = 0
+        self.__selectedCol = 0
+
+    def selectCell(self, comand):
+
+        if comand == "right":
+            if self.__selectedCol+1 < self.title.length:
+                self.__selectedCol +=1
+                print("   ",self.__selectedRow,self.__selectedCol)
+                return True
+        if comand == "left":
+            if self.__selectedCol > 0:
+                self.__selectedCol -=1
+                print("   ",self.__selectedRow,self.__selectedCol)
+                return True
+        if comand == "up":
+            if self.__selectedRow > 0:
+                self.__selectedRow -=1
+                print("   ",self.__selectedRow,self.__selectedCol)
+                return True
+        if comand == "down":
+            if self.__selectedRow +1 < self.rows.length:
+                self.__selectedRow +=1
+                print("   ",self.__selectedRow,self.__selectedCol)
+                return True
+
+        return False
 
     def save(self):
         rtn = DArray(self.title.length+1)
@@ -159,28 +187,28 @@ class Data:
         """
 
         """base case is no search"""
-        self.primarySort = -1
-        self.secondarySort = -1
+        self.__primarySort = -1
+        self.__secondarySort = -1
             
         """Cicle through titles to deturmine sorting"""
         spot = 0
         while spot < self.title.length:
             if self.title.get(spot) == sortPrimary:
-                self.primarySort = spot
+                self.__primarySort = spot
             elif self.title.get(spot) == sortSecondary:
-                self.secondarySort = spot
+                self.__secondarySort = spot
             spot += 1
 
         """Stop if primary sorting not properly specified"""
-        if self.primarySort == -1 :
+        if self.__primarySort == -1 :
             return True
 
         """get the in order of the right AVL tree"""
-        primary = self.AVLs.get(self.primarySort).inOrder()
+        primary = self.__AVLs.get(self.__primarySort).inOrder()
         secondarySet = DArray()
 
         """if no secondary sort"""
-        if self.secondarySort == -1:
+        if self.__secondarySort == -1:
             self.rows = primary
             self.visible = self.rows.copy()
             return True
@@ -194,13 +222,13 @@ class Data:
             curr = primary.get(i)
 
             """if curr is the same as prev, add curr to the temp list"""
-            if prev.row.get(self.primarySort) == curr.row.get(self.primarySort):
+            if prev.row.get(self.__primarySort) == curr.row.get(self.__primarySort):
                 temp.append(curr)
             else:
                 """create a new AVLTree and add temp list of the same primary value to it"""
                 secondaryAVL = AVLTree()
                 for t in temp:
-                    t.sortPriority = self.secondarySort
+                    t.sortPriority = self.__secondarySort
                     secondaryAVL.add(t)
                 temp = secondaryAVL.inOrder()
                 
@@ -214,7 +242,7 @@ class Data:
         """do this one last time for the last bit of data"""
         secondaryAVL = AVLTree()
         for t in temp:
-            t.sortPriority = self.secondarySort
+            t.sortPriority = self.__secondarySort
             secondaryAVL.add(t)
         temp = secondaryAVL.inOrder()
         secondarySet = secondarySet.addArray(temp)
@@ -242,10 +270,10 @@ class Data:
 
         """add new row to the AVL Trees with correct sort priority"""
         i = 0
-        while i < self.AVLs.length:
+        while i < self.__AVLs.length:
             for node in self.rows:
                 node.sortPriority = i
-            self.AVLs.get(i).add(baby)
+            self.__AVLs.get(i).add(baby)
             i += 1
         
         self.visible = self.rows.copy()
@@ -270,7 +298,7 @@ class Data:
 
         """add a new AVL tree to the list of AVL trees"""
         avl = AVLTree()
-        self.AVLs.append(avl)
+        self.__AVLs.append(avl)
         
         """add each row to the new avl tree, with apropriate sortPriority"""
         for row in self.rows:
@@ -299,7 +327,7 @@ class Data:
 
             """remove the row from every AVL tree"""
             col = 0
-            for avl in self.AVLs:
+            for avl in self.__AVLs:
                 for row in self.rows:
                     row.sortPriority = col
                 avl.remove(node)
@@ -321,7 +349,7 @@ class Data:
         if col < self.title.length:
             """remove column from every row"""
             self.title.remove(col)
-            self.AVLs.remove(col)
+            self.__AVLs.remove(col)
             self.columnLength.remove(col)
             for node in self.rows:
                 node.row.remove(col)
@@ -373,13 +401,13 @@ class Data:
             node.sortPriority = col
 
         """remove the row node from the AVL of the column"""
-        self.AVLs.get(col).remove(r)
+        self.__AVLs.get(col).remove(r)
 
         """change the data of the correct column and row"""
         r.put(data,col)
 
         """add the row back to the AVL of the column"""
-        self.AVLs.get(col).add(r)
+        self.__AVLs.get(col).add(r)
 
         """re-calculate column length with the new addition"""
         self.__calcColLen__()

@@ -1,9 +1,6 @@
-from typing import Collection
+
 from Database import AVLTree
-from Database.DArray import DArray
-from Database.Data import Data
-import os
-import urwid
+
 
 class intNode():
 
@@ -29,20 +26,26 @@ class AVLTester():
 
     def __init__(self):
 
+        self.temp = "Nothing: "
+
         if True:
             self.frontEnd()
         if False:
             self.AVL()
 
     def frontEnd(self):
-
-        cells = []
-        cel = urwid.FlowWidget()
         
-        cells.append(cel)
-        thing = urwid.GridFlow()
-        thing
+        from colorama import init
+        from colorama import Fore, Back, Style
 
+        init()
+
+        # print(Fore.BLACK + 'some red text')
+        print("here it is "+Fore.BLACK+Back.WHITE + "middle" +Style.RESET_ALL+" temp")
+        # print(Style.RESET_ALL)
+        
+        print('back to normal now')
+        
         pass
 
     def AVL(self):

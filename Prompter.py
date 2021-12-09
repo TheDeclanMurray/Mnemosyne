@@ -1,9 +1,12 @@
+from pynput.keyboard import Key, Controller
 from Database.Data import Data
 import os
+import time
 
 class Prompter():
 
     def __init__(self):
+        self.controler = Controller()
         self.dataBase = Data()
         self.saveStatus = True
         self.errorText = []
@@ -12,7 +15,7 @@ class Prompter():
 
 
     def terminalPrompter(self):
-        
+
         input1 = self.handleTerminal()
         while input1 != "Q":
 
@@ -108,10 +111,54 @@ class Prompter():
             self.savePrompt(self.dataBase)
         self.handleTerminal(False)
 
+    def userInput(self):
+
+        self.rtn = None
+        from pynput import keyboard
+
+        def on_press(key):
+            # if key == keyboard.Key.esc:
+            #     print("Key is esc")
+            #     return False
+            if key == Key.shift:
+                return
+
+            try:
+                k = key.char
+            except:
+                k = key.name
+
+            if k == "right":
+                self.dataBase.selectCell("right")
+                return False
+            if k == "left":
+                self.dataBase.selectCell("left")
+                return False
+            if k == "up":
+                self.dataBase.selectCell("up")
+                return False
+            if k == "down":
+                self.dataBase.selectCell("down")
+                return False
+
+            self.rtn = k
+            return False
+        
+        listener = keyboard.Listener(on_press=on_press)
+        listener.start()
+        listener.join()
+        
+        self.controler.press(Key.esc)
+
+        # time.sleep(1)
+        
+        return self.rtn
+
+        pass
 
     def handleTerminal(self, rePrint = True):
 
-        if(False):
+        if(True):
             comand = 'clear'
             if os.name in ('nt', 'dos'):
                 comand = "cls"
@@ -123,7 +170,8 @@ class Prompter():
             self.errorText = []
             self.dataBase.toString()
             print(self.instructions)
-            rtn = input("Input: ")
+            # rtn = input("Input: ")
+            rtn = self.userInput()
             return rtn
 
     def savePrompt(self, data):
