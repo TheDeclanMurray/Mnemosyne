@@ -9,23 +9,39 @@ class Tnode():
         self.height = 1
 
     def calcHeight(self):
+        """
+            Calculate the height of this node
+
+            ;return rtn: the height of this node
+        """
         Lheight = 0
         Rheight = 0
         if self.left != None:
             Lheight = self.left.height
         if self.right != None:
             Rheight = self.right.height
-        # print("H",self.toString()+".L =",Lheight)
-        # print("H",self.toString()+".R =",Rheight)
-        self.height = max(Lheight,Rheight) + 1
-        return self.height
+        rtn = self.height = max(Lheight,Rheight) + 1
+        return rtn
 
     def toString(self):
+        """
+            return this node as a string
+            data type needs a toString() meathod
+        """
         rtn = self.data.toString()
         return "["+rtn+"]"
 
 
 class AVLTree():
+    """
+        self ballencing binary search tree
+        node data must have a .compareTo() function
+            takes another nodes data
+            returns:
+                -1 if self is smaller than other
+                 0 if the same
+                 1 if self is larger than other
+    """
 
     def __init__(self):
         self.root = None
@@ -37,7 +53,6 @@ class AVLTree():
 
             ;param data: new data
         """
-        # print("adding",data.toString())
         baby = Tnode(data)
         self.root = self.__adder__(self.root, baby)
 
@@ -52,33 +67,33 @@ class AVLTree():
             :retern curr: the current node after ballencing the sub-tree
         """
 
-        """if empty tree"""
+        # if empty tree
         if curr == None:
             self.root = baby
             return baby
         
-        """if new data is less than or equal to curr.data go left"""
+        # if new data is less than or equal to curr.data go left
         if baby.data.compareTo(curr.data) <= 0:
 
-            """when to add baby"""
+            # when to add baby
             if curr.left == None:
                 curr.left = baby
                 curr.calcHeight()
                 return curr
             
-            """send baby to be added to left sub-tree, get ballenced sub-tree"""
+            # send baby to be added to left sub-tree, get ballenced sub-tree
             curr.left = self.__adder__(curr.left, baby)
             curr.calcHeight()
 
         else:
 
-            """when to add baby"""
+            # when to add baby
             if curr.right == None:
                 curr.right = baby
                 curr.calcHeight()
                 return curr
 
-            """send baby to be added to right sub-tree, get balanced sub-tree"""
+            # send baby to be added to right sub-tree, get balanced sub-tree
             curr.right = self.__adder__(curr.right, baby)
             curr.calcHeight()
 
@@ -88,9 +103,6 @@ class AVLTree():
         
 
     def __ballenceNode__(self, rotationNode):
-    
-        # print("TREE BEFORE")
-        # self.toString()
         """
             ballence a node by rotating its decendents
         
@@ -103,6 +115,7 @@ class AVLTree():
         if rotationNode == None:
             return None
         
+        # calculate if tree needs to rotate right, left, or not at all from this node
         if rotationNode.left == None and rotationNode.right == None:
             return rotationNode
         elif(rotationNode.right == None):
@@ -112,7 +125,9 @@ class AVLTree():
         else:
             bal = rotationNode.left.height - rotationNode.right.height
         
+        # node rotates to the left
         if bal < -1:
+            # calculate secondary rotation
             spot = rotationNode.right
             if spot.left == None and spot.right == None:
                 return None
@@ -130,7 +145,9 @@ class AVLTree():
                 mode = "RL"
                 child = spot.left
 
+        # node rotates to the right
         elif bal > 1:
+            # calculate secondary rotation
             spot = rotationNode.left
             if spot.left == None and spot.right == None:
                 return None
@@ -151,19 +168,11 @@ class AVLTree():
         else:
             return rotationNode
             
-        # print("Ballencing Node",rotationNode.toString(),mode)
-
         """semi-unnecisary, but it helped me conseptualize the prosses"""
         parent = rotationNode
 
         """rotation if the path to where baby was added begins from rotationNode with Left-Left"""
         if mode == "LL":
-
-            if False:
-                """keep track of nodes"""
-                spot = parent.left
-                if spot == None:
-                    return None
 
             """do the rotation"""
             parent.left = spot.right
@@ -175,12 +184,6 @@ class AVLTree():
         """rotation for Right-Right path"""
         if mode == "RR":
 
-            if False:
-                """keep track of nodes"""
-                spot = parent.right
-                if spot == None:
-                    return None
-
             """do the rotation"""
             parent.right = spot.left
             spot.left = parent
@@ -190,15 +193,6 @@ class AVLTree():
 
         """roation for Left-Right path"""
         if mode == "LR":
-
-            if False:
-                """keep track of nodes"""
-                spot = parent.left
-                if spot == None:
-                    return None
-                child = spot.right
-                if child == None:
-                    return None
 
             """do the rotation"""
             spot.right = child.left
@@ -212,15 +206,6 @@ class AVLTree():
 
         """rotation for Right-Left path"""
         if mode == "RL":
-
-            if False:
-                """keep track of nodes"""
-                spot = parent.right
-                if spot == None:
-                    return None
-                child = spot.left
-                if child == None:
-                    return None
 
             """do the rotation"""
             spot.left = child.right
@@ -237,7 +222,10 @@ class AVLTree():
                 
     def remove(self, data):
         """
-        public starter function for removal methods
+            public starter function for removal methods
+
+            ;param data: data to find and remove from the tree
+            :return: True if no errors
         """
 
         self.root = self.__remHelper(self.root,data)
@@ -245,15 +233,17 @@ class AVLTree():
 
     def __remHelper(self, curr, data):
         """
-        recursive function to help remove() find the node to be removed
+            recursive function to help remove() find the node to be removed
+            backtracks up the tree to calculate the new heights
 
-        backtracks up the tree to calculate the new heights
+            ;param curr: current node
+            :param data: data to find and remove from the tree
+            ;return curr: new subtree
         """
         if curr == None:
             return None
 
         if data == curr.data:
-            # print(curr.toString(),"is removal node")
             return self.__removeNode(curr)
 
         curr.left = self.__remHelper(curr.left, data)
@@ -265,40 +255,38 @@ class AVLTree():
 
     def __removeNode(self, curr):
         """
-        remove a given node
-        returns the new subtree of this removed node to parent node
+            remove a given node and return the new subtree of this removed node 
+
+            ;param curr: node to remove from the tree
+            :return curr: new subtree
         """
     
         """"No Children"""
         if curr.right == None and curr.left == None:
-            # print(curr.toString(),"0 Child")
             return None
 
         """1 Child"""
         if curr.right == None:
-            # print(curr.toString(),"1 Child Left")
             return curr.left
         if curr.left == None:
-            # print(curr.toString(),"1 Child Right")
             return curr.right
 
         """2 Children"""
-        # print(curr.toString(), "2 Children")
         curr.left = self.__findChild(curr, curr.left)
         curr.calcHeight()
         return curr
 
-
     def __findChild(self, rem, curr):
         """
-        recursive function to fine right most left child
+            recursive function to fine right most left child
         
-        input left of the removal node
-        return is the new left subtree of node to be removed
+            ;param rem: node that is being removed
+            :param curr: node left of the removal node (left of rem)
+            :return curr: the new left subtree of node to be removed
         """
 
+        # base case of this recursive function
         if curr.right == None:
-            # print(curr.toString(),"is right most child")
             rem.data = curr.data
             return curr.left
 
@@ -308,12 +296,20 @@ class AVLTree():
         return curr
 
     def append(self, data):
-        """add data without ballencing"""
+        """
+            add data to the tree without the self-balencing feature
+
+            ;param data: data to be added
+            :return: True if no errors encountered 
+        """
         baby = Tnode(data)
+
+        # if tree is empty
         if self.root == None:
             self.root = baby
             return True
 
+        # find the right spot in the BST to add baby
         curr = self.root
         while curr != None:
             if data <= curr.data:
@@ -329,15 +325,28 @@ class AVLTree():
         return False
 
     def inOrder(self):
-        rtn = DArray()
-        if self.root == None:
-            print("Root is None")
+        """
+            take an in order traversal of the tree
 
-        return self.LCR(self.root,rtn)
+            ;return rtn: DArray containing the inputed data in order
+        """
+        rtn = DArray()    
+        return self.__LCR(self.root,rtn)
 
-    def LCR(self, curr, rtn):
+    def __LCR(self, curr, rtn):
+        """
+            takes the current node and the inOrder list and adds the node and its 
+            decendents to the list
+
+            ;param curr: the current node in the traversal
+            :param rtn: the list of node data
+            :return rtn: returns the updated list of node data
+        """
+        # base case
         if(curr == None):
             return rtn
+
+        # go left, take current data, then go right
         rtn = self.LCR(curr.left, rtn)
         rtn.append(curr.data)
         rtn = self.LCR(curr.right, rtn)
@@ -345,9 +354,9 @@ class AVLTree():
         return rtn
 
     def toString(self):
-
-        if False:
-            return
+        """
+            Hardcoded termninal display of an AVLTree to assist with errors in this class
+        """
         
         prt = []
         i = 0
@@ -364,6 +373,9 @@ class AVLTree():
         print("")
 
     def __strHelper(self, curr, spot, prt):
+        """
+            helper function for toString()
+        """
         if curr == None:
             return prt
         prt[spot] = curr.toString()

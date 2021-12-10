@@ -2,86 +2,99 @@ from pynput import keyboard
 from pynput.keyboard import Key, Controller
 from Database.Data import Data
 import os
-import time
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 import keyboard as kb
 
-
 class Prompter():
+    """
+        Class that handles (for the most part) terminal interactions
+    """
 
     def __init__(self):
         self.controler = Controller()
         self.dataBase = Data()
-        self.saveStatus = True
         self.errorText = []
-        self.instructions = Fore.RED + """   Q quit, I insert, D delete row or column R add row, C add column, 
-   F search, T sort, S save , A save as, O open, K delete page, N new page """ + Style.RESET_ALL
+        self.instructions = Fore.RED + """   Q quit, I insert, D delete row or column, R add row, C add column, 
+   F search, T sort, S save , A save as, O open, K delete page, N new page, P Pause""" + Style.RESET_ALL
 
 
     def terminalPrompter(self):
+        """
+            Open a new dataBase and wait for keyboard comand
+        """
         input1 = self.handleTerminal()
         while input1 != "Q":
 
+            # insert into the database at the selected cell
             if input1 == "I":
                 info = input(Fore.GREEN + "Cell Contents: ")
                 self.dataBase.insert(info)
-                self.saveStatus = False
+                self.dataBase.saveStatus = False
 
+            # Delete a row or column
             elif input1 == "D":
                 rem = input("Row or Column: ")
-                if rem.lower() == "row":
+                if rem.lower() in ["r","row"]:
+                    # sugest a row to remove and remove the specified row
                     kb.press(str(self.dataBase.selectedRow))
                     row = int(input(Fore.GREEN + "Row: "))
                     self.dataBase.removeRow(row)
-                elif rem.lower() == "col" or rem.lower() == "column":
+                elif rem.lower() in ["c","col","column"]:
+                    # sugest a column to remove and remove the specified column
                     kb.press(str(self.dataBase.selectedCol))
                     col = int(input(Fore.GREEN +  "Column: "))
                     self.dataBase.removeCol(col)
-                self.saveStatus = False
+                self.dataBase.saveStatus = False
 
+            # add a column
             elif input1 == "C":
                 name = input(Fore.GREEN + "Column Name: ")
                 self.dataBase.addCol(name)
-                self.saveStatus = False
+                self.dataBase.saveStatus = False
 
+            # add a row
             elif input1 == "R":
                 self.dataBase.addRow()
-                self.saveStatus = False
+                self.dataBase.saveStatus = False
 
+            # search for something in the database
             elif input1 == "F":
                 search = input(Fore.GREEN + "Search: ")
                 self.dataBase.search(search)
 
+            # sort the database
             elif input1 == "T":
-                primary = input(Fore.GREEN + "Primary: ")
-                secondary = input(Fore.GREEN + "Secondary: ")
+                primary = input(Fore.GREEN + "Primary: ")     # primary sort priority
+                secondary = input(Fore.GREEN + "Secondary: ") # secondary sort priority
                 self.dataBase.sort(primary,secondary)
 
             elif input1 == "O":
+                # sugest saving the database if unsaved
+                if not self.dataBase.saveStatus:
+                    self.savePrompt()
 
-                if not self.saveStatus:
-                    self.savePrompt(self.dataBase)
-
+                # ask for the database name
                 inputfile = input(Fore.GREEN + "Open: ")
                 inputfile = "storage/" + inputfile + ".txt"
                  
+                # open the given database if file exists
                 rtn = False
                 try: 
                     rtn = self.openData(inputfile)
+                    self.dataBase = rtn
                 except Exception as a:
                     self.errorText.append(a)
 
-                if rtn != False:
-                    self.dataBase = rtn
-
+            # Save database
             elif input1 == "S":
                 outputFile = "storage/" + self.dataBase.name + ".txt"
                 try: 
-                    self.saveData(outputFile, self.dataBase)
-                    self.saveStatus = True
+                    self.saveData(outputFile)
+                    self.dataBase.saveStatus = True
                 except Exception as a:
                     self.errorText.append(a)
 
+            # Save data base under a new name
             elif input1 == "A":
                 outputFile = input("Save as: ")
                 self.dataBase.name = outputFile
@@ -91,6 +104,7 @@ class Prompter():
                 except Exception as a:
                     self.errorText.append(a)
 
+            # Delete the database from the screen and from storage
             elif input1 == "K":
                 fileName = "storage/" + self.dataBase.name + ".txt"
                 try:
@@ -99,35 +113,40 @@ class Prompter():
                     pass
                 self.dataBase = Data()
 
+            # open a new/empty database
             elif input1 == "N":
 
-                if not self.saveStatus:
+                if not self.dataBase.saveStatus:
                     self.savePrompt()
                     
                 self.dataBase = Data()
-                self.saveStatus = True
+                self.dataBase.saveStatus = True
 
+            # Pause the keyboard listener
+            elif input1 == "P":
+                keepGoing = input("Ready to Continue Y/N? ")
+                while keepGoing != "Y":
+                    keepGoing = input("Ready to Continue Y/N? ")
 
+            # wait for next comand
             input1 = self.handleTerminal()
 
-        if not self.saveStatus:
-            self.savePrompt(self.dataBase)
+        # prompt a save, reset the colorpalate and clear the screen
+        if not self.dataBase.saveStatus:
+            self.savePrompt()
         print(Style.RESET_ALL)
         self.handleTerminal(False)
 
-
     def userInput(self):
+        """
+            wait for a valid user input and then return that input
+
+            ;return rtn: string of a character
+        """
 
         self.rtn = None
-        from pynput import keyboard
-
         def on_press(key):
-            # if key == keyboard.Key.esc:
-            #     print("Key is esc")
-            #     return False
             if key == Key.shift:
-                return
-            if key == Key.ctrl:
                 return
 
             try:
@@ -148,25 +167,32 @@ class Prompter():
                 self.dataBase.selectCell("down")
                 return False
 
-            self.rtn = k
-            return False
+            if k in ["Q","P","I","D","R","C","S","A","T","O","N","K","F"]:
+                self.rtn = k
+                return False
         
+        # Keyboard listener
         listener = keyboard.Listener(on_press=on_press)
         listener.start()
         listener.join()
         
+        # clear the recorded keystrokes and return
         self.controler.press(Key.esc)
-        
         return self.rtn
 
     def handleTerminal(self, rePrint = True):
+        """
+            Clears the terminal, then if rePrint is true, prints the current database
 
+            ;param rePrint: wether or not to print the current database again, defalts to true
+        """
         if(True):
             comand = 'clear'
             if os.name in ('nt', 'dos'):
                 comand = "cls"
             os.system(comand)
 
+        # print the current database and wait for a valid user input via keyboard
         if rePrint:
             for a in self.errorText:
                 print(a)
@@ -177,25 +203,36 @@ class Prompter():
             rtn = self.userInput()
             return rtn
 
-    def savePrompt(self, data):
+    def savePrompt(self):
+        """
+            Prompt the user to save their work on the current database
+        """
         saveSugestion = input("Save Work(Y/N)? ")
         
         if saveSugestion == "Y":
-            outputFile = "storage/" + data.name + ".txt"
+            outputFile = "storage/" + self.dataBase.name + ".txt"
             try: 
-                self.saveData(outputFile, data)
+                self.saveData(outputFile)
             except Exception as a:
                 self.errorText.append(a)
-        self.saveStatus = True
-
+        self.dataBase.saveStatus = True
 
     def openData(self, inputFile):
+        """
+            Open a specified file and read it into a database
 
-        if(inputFile != None):    
-            with open(inputFile) as f:
-                text = f.readlines()
-            f.close()
-        else:    
+            ;param inputFile: string name of a file
+            :return: True if no erros
+        """
+        try: 
+            if(inputFile != None):    
+                with open(inputFile) as f:
+                    text = f.readlines()
+                f.close()
+            else:    
+                return False
+        except Exception as a:
+            self.errorText.append(a)
             return False
 
         data = Data()
@@ -204,20 +241,21 @@ class Prompter():
         colLength = 0
 
         for line in text:
-            txt = line[2:len(line)-1]
-            type = line[0:1]
-            if type == "0":
-                name = txt
+            txt = line[2:len(line)-1] # gets the data in each line
+            type = line[0:1]          # gets the datatype
+            
+            # Database Name
+            if type == "0": 
                 data = Data()
-                data.name = name
+                data.name = txt
                 data.addRow()
                 
-                
+            # Column Title
             elif type == "1":
                 data.addCol(txt)
                 colLength += 1
 
-                
+            # Cell contents
             elif type == "2":
                 data.insert(txt,row,col)
                 col +=1
@@ -226,17 +264,23 @@ class Prompter():
                     row +=1
                     col = 0
 
+        # An extra row gets added so remove that
         data.removeRow(data.rows.length-1) 
         return data
         
-
-    def saveData(self, saveFile, currDataBase):
-
+    def saveData(self, saveFile):
+        """
+            Save current database to a given file, create the file if it does not exist
+        
+            ;param saveFile: file location
+            :return: True if no errors
+        """
         if(saveFile != None):
             with open(saveFile, "w") as f:
-                Lines = currDataBase.save()
+                Lines = self.dataBase.save()
                 for line in Lines:
                     f.write(line)
             f.close()
+            return True
         else:
             return False

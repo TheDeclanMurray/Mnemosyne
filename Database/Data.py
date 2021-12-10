@@ -2,7 +2,7 @@
 
 from Database.AVLTree import AVLTree
 from Database.DArray import DArray
-from colorama import Fore, Back, Style 
+from colorama import Fore, Back 
 
 class RowNode():
 
@@ -75,6 +75,7 @@ class Data:
         self.__secondarySort = -1 # the column number of the secondary sort priorty (-1 if none)
         self.selectedRow = 0
         self.selectedCol = 0
+        self.saveStatus = True
 
     def selectCell(self, comand):
 
@@ -464,8 +465,10 @@ class Data:
             ;retern boolean: True if no errors 
         """
 
-        
-        print(Fore.GREEN +self.name)
+        prtName = Fore.GREEN + self.name
+        if self.saveStatus == False:
+            prtName += "*"
+        print(prtName)
 
         if self.title.length == 0:
             print("Database Empty, add Column and Rows")

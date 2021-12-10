@@ -1,36 +1,43 @@
-0 base
+0 camp
 1 num
 1 Name
 1 Age
 1 Size
 1 Plus
-2 0
-2 James
-2 32
-2 L
+1 Height
+2 4
+2 Batman
+2 30
+2 XL
 2 
-2 1
-2 Apple
-2 32
-2 S
 2 
 2 2
 2 Zebra
 2 30
 2 8+
 2 
+2 5'
+2 1
+2 Apple
+2 32
+2 here
+2 
+2 5"
 2 3
 2 Bob Jefferson
 2 32
+2 S
 2 
 2 
-2 4
-2 Batman
-2 30
+2 0
+2 James
+2 32
+2 L
 2 
-2 
+2 6'5"
 2 5
 2 
 2 
 2 
 2 test
+2 
