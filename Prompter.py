@@ -100,7 +100,7 @@ class Prompter():
                 self.dataBase.name = outputFile
                 outputFile = "storage/" + outputFile + ".txt"
                 try: 
-                    self.saveData(outputFile, self.dataBase)
+                    self.saveData(outputFile)
                 except Exception as a:
                     self.errorText.append(a)
 

@@ -347,9 +347,9 @@ class AVLTree():
             return rtn
 
         # go left, take current data, then go right
-        rtn = self.LCR(curr.left, rtn)
+        rtn = self.__LCR(curr.left, rtn)
         rtn.append(curr.data)
-        rtn = self.LCR(curr.right, rtn)
+        rtn = self.__LCR(curr.right, rtn)
 
         return rtn
 
