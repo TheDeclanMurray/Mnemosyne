@@ -1,5 +1,4 @@
-from pynput import keyboard
-from pynput.keyboard import Key, Controller
+from pynput.keyboard import Key, Controller, Listener
 from Database.Data import Data
 import os
 from colorama import Fore, Style
@@ -81,9 +80,11 @@ class Prompter():
                 rtn = False
                 try: 
                     rtn = self.openData(inputfile)
-                    self.dataBase = rtn
+                    if rtn != False:
+                        self.dataBase = rtn
                 except Exception as a:
-                    self.errorText.append(a)
+                    prt = Fore.RED + "File "+inputfile + " does not exist"
+                    self.errorText.append(prt)
 
             # Save database
             elif input1 == "S":
@@ -92,7 +93,8 @@ class Prompter():
                     self.saveData(outputFile)
                     self.dataBase.saveStatus = True
                 except Exception as a:
-                    self.errorText.append(a)
+                    prt = Fore.RED + "Can not save to "+outputFile
+                    self.errorText.append(prt)
 
             # Save data base under a new name
             elif input1 == "A":
@@ -102,7 +104,8 @@ class Prompter():
                 try: 
                     self.saveData(outputFile)
                 except Exception as a:
-                    self.errorText.append(a)
+                    prt = Fore.RED + "Can not save to " + outputFile
+                    self.errorText.append(prt)
 
             # Delete the database from the screen and from storage
             elif input1 == "K":
@@ -172,7 +175,7 @@ class Prompter():
                 return False
         
         # Keyboard listener
-        listener = keyboard.Listener(on_press=on_press)
+        listener = Listener(on_press=on_press)
         listener.start()
         listener.join()
         
@@ -214,7 +217,9 @@ class Prompter():
             try: 
                 self.saveData(outputFile)
             except Exception as a:
-                self.errorText.append(a)
+                prt = Fore.RED + "Can not save to "+outputFile
+                self.errorText.append(prt)
+                
         self.dataBase.saveStatus = True
 
     def openData(self, inputFile):
@@ -232,7 +237,8 @@ class Prompter():
             else:    
                 return False
         except Exception as a:
-            self.errorText.append(a)
+            prt = Fore.RED + "File "+inputFile +" does not exist"
+            self.errorText.append(prt)
             return False
 
         data = Data()
