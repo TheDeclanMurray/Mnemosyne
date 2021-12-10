@@ -35,12 +35,16 @@ class Prompter():
                 rem = input("Row or Column: ")
                 if rem.lower() in ["r","row"]:
                     # sugest a row to remove and remove the specified row
-                    kb.press(str(self.dataBase.selectedRow))
+                    currRow = str(self.dataBase.selectedRow)
+                    for char in currRow:
+                        kb.press(char)
                     row = int(input(Fore.GREEN + "Row: "))
                     self.dataBase.removeRow(row)
                 elif rem.lower() in ["c","col","column"]:
                     # sugest a column to remove and remove the specified column
-                    kb.press(str(self.dataBase.selectedCol))
+                    currCol = str(self.dataBase.selectedCol)
+                    for char in currCol:
+                        kb.press(char)
                     col = int(input(Fore.GREEN +  "Column: "))
                     self.dataBase.removeCol(col)
                 self.dataBase.saveStatus = False
@@ -106,6 +110,7 @@ class Prompter():
                 except Exception as a:
                     prt = Fore.RED + "Can not save to " + outputFile
                     self.errorText.append(prt)
+                self.dataBase.saveStatus = True
 
             # Delete the database from the screen and from storage
             elif input1 == "K":

@@ -329,6 +329,8 @@ class Data:
                 col +=1
 
             self.__calcColLen__()
+            if self.selectedRow >= self.rows.length:
+                self.selectedRow -= 1
             return True
         return False
 
@@ -348,6 +350,9 @@ class Data:
             self.columnLength.remove(col)
             for node in self.rows:
                 node.row.remove(col)
+
+            if self.selectedCol >= self.title.length:
+                self.selectedCol -= 1
             return True
         return False
 
