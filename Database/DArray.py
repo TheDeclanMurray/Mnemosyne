@@ -7,7 +7,7 @@ class DArray(Iterable):
         functions useful to do things
     """
 
-    def __init__(self, length = 2):        
+    def __init__(self, length = 2):       
         self.__arr__ = numpy.array(length*[""], dtype = 'object')
         self.length = 0
         self.size = length
