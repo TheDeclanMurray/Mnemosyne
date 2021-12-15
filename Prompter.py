@@ -26,6 +26,15 @@ class Prompter():
 
             # insert into the database at the selected cell
             if input1 == "I":
+                currtext = self.dataBase.get(self.dataBase.selectedRow,self.dataBase.selectedCol)
+                for l in currtext:
+                    kb.press_and_release("shift")
+                    press = '' 
+                    if l.isupper() and not l.isnumeric():
+                        press = "shift + "
+                    press += l.lower()
+                    print("  leter:",press)
+                    kb.press_and_release(press)
                 info = input(Fore.GREEN + "Cell Contents: ")
                 self.dataBase.insert(info)
                 self.dataBase.saveStatus = False
@@ -92,25 +101,14 @@ class Prompter():
 
             # Save database
             elif input1 == "S":
-                outputFile = "storage/" + self.dataBase.name + ".txt"
-                try: 
-                    self.saveData(outputFile)
-                    self.dataBase.saveStatus = True
-                except Exception as a:
-                    prt = Fore.RED + "Can not save to "+outputFile
-                    self.errorText.append(prt)
+                if self.dataBase.name == "Untitled Document":
+                    self.saver(True)
+                else:
+                    self.saver()
 
             # Save data base under a new name
             elif input1 == "A":
-                outputFile = input("Save as: ")
-                self.dataBase.name = outputFile
-                outputFile = "storage/" + outputFile + ".txt"
-                try: 
-                    self.saveData(outputFile)
-                except Exception as a:
-                    prt = Fore.RED + "Can not save to " + outputFile
-                    self.errorText.append(prt)
-                self.dataBase.saveStatus = True
+                self.saver(True)
 
             # Delete the database from the screen and from storage
             elif input1 == "K":
@@ -144,6 +142,19 @@ class Prompter():
             self.savePrompt()
         print(Style.RESET_ALL)
         self.handleTerminal(False)
+        kb.release("shift")
+
+    def saver(self,saveAs = False):
+        if saveAs:
+            outputFile = input("Save as: ")
+            self.dataBase.name = outputFile
+        outputFile = "storage/" + self.dataBase.name + ".txt"
+        try: 
+            self.saveData(outputFile)
+            self.dataBase.saveStatus = True
+        except Exception as a:
+            prt = Fore.RED + "Can not save to " + outputFile
+            self.errorText.append(prt)
 
     def userInput(self):
         """
@@ -218,13 +229,10 @@ class Prompter():
         saveSugestion = input("Save Work(Y/N)? ")
         
         if saveSugestion == "Y":
-            outputFile = "storage/" + self.dataBase.name + ".txt"
-            try: 
-                self.saveData(outputFile)
-            except Exception as a:
-                prt = Fore.RED + "Can not save to "+outputFile
-                self.errorText.append(prt)
-                
+            if self.dataBase.name == "Untitled Document":
+                self.saver(True)
+            else:
+                self.saver()
         self.dataBase.saveStatus = True
 
     def openData(self, inputFile):
