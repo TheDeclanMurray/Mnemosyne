@@ -142,6 +142,12 @@ class Prompter():
         kb.release("shift")
 
     def saver(self,saveAs = False):
+        """
+            save the current database, with the option to save as
+        
+            ;param saveAs: boolean on weather to save as, defalts to false
+            :retern boolean: True if no errors 
+        """
         if saveAs:
             outputFile = input("Save as: ")
             self.dataBase.name = outputFile
@@ -152,6 +158,7 @@ class Prompter():
         except Exception as a:
             prt = Fore.RED + "Can not save to " + outputFile
             self.errorText.append(prt)
+        return True
 
     def userInput(self):
         """

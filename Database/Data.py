@@ -98,14 +98,14 @@ class Data:
 
     def save(self):
         rtn = DArray(self.title.length+1)
-        """Database Name"""
+        # Database Name
         rtn.append("0 "+self.name+"\n")
 
-        """Titles"""
+        # Titles
         for col in self.title:
             rtn.append("1 "+col+"\n")
 
-        """Data"""
+        # Data
         for row in self.rows:
             rowStrings = row.save()
             rtn = rtn.addArray(rowStrings)
@@ -120,19 +120,19 @@ class Data:
             :retern: True if no errors 
         """
 
-        """if search is blank, everything becomes visible"""
+        # if search is blank, everything becomes visible
         if search == "":
             self.visible = self.rows.copy()
             return True
 
-        """create new visible list"""
+        # create new visible list
         self.visible = DArray()
 
-        """Cycle through the Rows"""
+        # Cycle through the Rows
         for node in self.rows:
-            """Cycle through the data in each row"""
+            # Cycle through the data in each row
             for data in node.row:
-                """if the row contains the search add it to visible"""
+                # if the row contains the search add it to visible
                 if self.__find__(search, data):
                     self.visible.append(node)
                     break
@@ -151,21 +151,21 @@ class Data:
             :retern boolean: True if data contains search
         """
 
-        """save computations"""
+        # save computations
         sl = len(search)
         dl = len(data)
 
-        """if length is too big return false"""
+        # if length is too big return false
         if sl > dl:
             return False
-        """if length is the same compare directly"""
+        # if length is the same compare directly
         if sl == dl:
             if search == data:
                 return True
             else:
                 return False
 
-        """if length is smaller, then cycle through each substring"""
+        # if length is smaller, then cycle through each substring
         spot = 0
         while spot + sl <= dl:
             if data[spot:spot+sl] == search:
@@ -185,11 +185,11 @@ class Data:
             :retern boolean: True if no errors 
         """
 
-        """base case is no search"""
+        # base case is no search
         self.__primarySort = -1
         self.__secondarySort = -1
             
-        """Cicle through titles to deturmine sorting"""
+        # Cicle through titles to deturmine sorting
         spot = 0
         while spot < self.title.length:
             if self.title.get(spot) == sortPrimary:
@@ -198,21 +198,21 @@ class Data:
                 self.__secondarySort = spot
             spot += 1
 
-        """Stop if primary sorting not properly specified"""
+        # Stop if primary sorting not properly specified
         if self.__primarySort == -1 :
             return True
 
-        """get the in order of the right AVL tree"""
+        # get the in order of the right AVL tree
         primary = self.__AVLs.get(self.__primarySort).inOrder()
         secondarySet = DArray()
 
-        """if no secondary sort"""
+        # if no secondary sort
         if self.__secondarySort == -1:
             self.rows = primary
             self.visible = self.rows.copy()
             return True
 
-        """if secondary sort specified"""
+        # if secondary sort specified
         i = 1
         prev = primary.get(0)
         temp = DArray()
@@ -220,25 +220,25 @@ class Data:
         while i < self.rows.length:
             curr = primary.get(i)
 
-            """if curr is the same as prev, add curr to the temp list"""
+            # if curr is the same as prev, add curr to the temp list
             if prev.row.get(self.__primarySort) == curr.row.get(self.__primarySort):
                 temp.append(curr)
             else:
-                """create a new AVLTree and add temp list of the same primary value to it"""
+                # create a new AVLTree and add temp list of the same primary value to it
                 secondaryAVL = AVLTree()
                 for t in temp:
                     t.sortPriority = self.__secondarySort
                     secondaryAVL.add(t)
                 temp = secondaryAVL.inOrder()
                 
-                """add the secondary order to the final order"""
+                # add the secondary order to the final order
                 secondarySet = secondarySet.addArray(temp)
                 temp = DArray()
                 temp.append(curr)
             i += 1
             prev = curr
         
-        """do this one last time for the last bit of data"""
+        # do this one last time for the last bit of data
         secondaryAVL = AVLTree()
         for t in temp:
             t.sortPriority = self.__secondarySort
@@ -260,14 +260,14 @@ class Data:
 
         baby = RowNode(self.title.size)
 
-        """Fill in new row with apropriate number of columns"""
+        # Fill in new row with apropriate number of columns
         for i in range(self.title.length):
             baby.row.append("")
 
-        """add the row to the bottom of the rows"""
+        # add the row to the bottom of the rows
         self.rows.append(baby)
 
-        """add new row to the AVL Trees with correct sort priority"""
+        # add new row to the AVL Trees with correct sort priority
         i = 0
         while i < self.__AVLs.length:
             for node in self.rows:
@@ -287,19 +287,19 @@ class Data:
             :retern boolean: True if no errors 
         """
 
-        """make sure the type is a string"""
+        # make sure the type is a string
         if type(name) != type.__str__:
             name = str(name)
 
-        """add the title to the title list and change column lenth"""
+        # add the title to the title list and change column lenth
         self.title.append(name)
         self.columnLength.append(len(name))
 
-        """add a new AVL tree to the list of AVL trees"""
+        # add a new AVL tree to the list of AVL trees
         avl = AVLTree()
         self.__AVLs.append(avl)
         
-        """add each row to the new avl tree, with apropriate sortPriority"""
+        # add each row to the new avl tree, with apropriate sortPriority
         for row in self.rows:
             row.row.append("")
             row.sortPriority = self.title.length-1
@@ -317,14 +317,14 @@ class Data:
             :retern boolean: True if no errors 
         """
 
-        """if valid input"""
+        # if valid input
         if row < self.visible.length:
-            """remove node from visible and rows"""
+            # remove node from visible and rows
             node = self.visible.get(row)
             self.visible.remove(row)
             self.rows.remove(row)
 
-            """remove the row from every AVL tree"""
+            # remove the row from every AVL tree
             col = 0
             for avl in self.__AVLs:
                 for row in self.rows:
@@ -346,9 +346,9 @@ class Data:
             :retern boolean: True if no errors 
         """
 
-        """if valid input"""
+        # if valid input
         if col < self.title.length:
-            """remove column from every row"""
+            # remove column from every row
             self.title.remove(col)
             self.__AVLs.remove(col)
             self.columnLength.remove(col)
@@ -374,7 +374,7 @@ class Data:
         if col == None:
             col = self.selectedCol
 
-        """checking for valid inputs"""
+        # checking for valid inputs
         if type(data) != type.__str__:
             data = str(data)
 
@@ -401,23 +401,23 @@ class Data:
         if col >= self.title.length:
             return False
 
-        """get the rowNode"""
+        # get the rowNode
         r = self.visible.get(row)
 
-        """set sorting prioity for all nodes"""
+        # set sorting prioity for all nodes
         for node in self.rows:
             node.sortPriority = col
 
-        """remove the row node from the AVL of the column"""
+        # remove the row node from the AVL of the column
         self.__AVLs.get(col).remove(r)
 
-        """change the data of the correct column and row"""
+        # change the data of the correct column and row
         r.put(data,col)
 
-        """add the row back to the AVL of the column"""
+        # add the row back to the AVL of the column
         self.__AVLs.get(col).add(r)
 
-        """re-calculate column length with the new addition"""
+        # re-calculate column length with the new addition
         self.__calcColLen__()
         
         return True
@@ -431,13 +431,13 @@ class Data:
             :retern data: return data as a string, None if illigitimate parameters  
         """
 
-        """checking for valid inputs"""
+        # checking for valid inputs
         if col >= self.title.length:
             return None
         if row >= self.visible.length:
             return None
 
-        """return"""
+        # return
         node = self.visible.get(row)
         data = node.row.get(col)
         return data
@@ -452,13 +452,13 @@ class Data:
 
         self.columnLength = DArray()
 
-        """goes through each column"""
+        # goes through each column
         col = 0
         while col < self.title.length:
-            """check if the title is the longest string"""
+            # check if the title is the longest string
             self.columnLength.append(len(self.title.get(col)))
 
-            """check wich row holds the largest string for the column"""
+            # check wich row holds the largest string for the column
             for r in self.rows:
                 if len(r.row.get(col)) > self.columnLength.get(col):
                     self.columnLength.put(len(r.row.get(col)), col)
@@ -485,11 +485,11 @@ class Data:
 
         currRow = DArray()
 
-        """Print title"""
+        # Print title
         spot = 0
         while spot < self.title.length:
             
-            """add ' ' to reach len"""
+            # add ' ' to reach len
             numSpace = self.columnLength.get(spot) - len(self.title.get(spot))
             full = self.title.get(spot) + " "*(numSpace)
             currRow.append(full)
@@ -497,15 +497,15 @@ class Data:
             
         self.__printRow__(currRow,True)
 
-        """print visible rows"""
+        # print visible rows
         col = 0
         for row in self.visible:
             currRow = DArray()
             spot = 0
-            """goes through all the spots in row"""
+            # goes through all the spots in row
             while spot < self.title.length:
 
-                """add ' ' to reach len"""
+                # add ' ' to reach len
                 numSpace = self.columnLength.get(spot) - len(row.row.get(spot))
                 full = " "*(numSpace) + row.row.get(spot)
                 if col == self.selectedRow and spot == self.selectedCol:
@@ -528,13 +528,13 @@ class Data:
             :retern boolean: True if no errors 
         """
 
-        """edge print"""
+        # edge print
         prt = "|"
         for spot in row:
             prt = prt + spot + "|"
         print(prt)
 
-        """title seperation"""
+        # title seperation
         if(isTitle == True):
             prt = "+"
             for num in self.columnLength:
