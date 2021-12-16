@@ -5,22 +5,22 @@
 1 Size
 1 LName
 2 1
-2 Apple
+2 bru
 2 32
 2 S
 2 Fruit
 2 5
-2 Barsa
+2 Bruh
 2 30
 2 M
 2 temp
 2 4
-2 Batman
+2 Br
 2 30
 2 M
 2 Wayne
 2 3
-2 Bob Jefferson
+2 B
 2 32
 2 M
 2 The Second

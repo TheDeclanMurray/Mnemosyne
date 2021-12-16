@@ -14,6 +14,9 @@ def fuzzysearch(search, check):
     collumn = len(check)+1
     matrix = np.zeros((len(search)+1,len(check)+1),dtype = int)
 
+    if search == check:
+        return 1
+
     # adding the indexs to matrix to be able iterate
     for i in range(1, row):
         for k in range(1,collumn):

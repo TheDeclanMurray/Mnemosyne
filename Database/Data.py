@@ -1,6 +1,7 @@
 from Database.AVLTree import AVLTree
 from Database.DArray import DArray
 from colorama import Fore, Back 
+from Database.Fuzzysearch import fuzzysearch
 
 class RowNode():
 
@@ -112,7 +113,35 @@ class Data:
         
         return rtn
 
-    def search(self, search):
+    def search(self, search, Fuzzy= True):
+
+        if Fuzzy == False:
+            return self.__search(search)
+        else:
+            # if search is blank, everything becomes visible
+            if search == "":
+                self.visible = self.rows.copy()
+                return True
+
+            # create new visible list
+            self.visible = DArray()
+
+            # Cycle through the Rows
+            for node in self.rows:
+                # Cycle through the data in each row
+                for data in node.row:
+                    # if the row contains the search add it to visible
+                    if fuzzysearch(search.lower(),data.lower())>.5:
+                        
+                        self.visible.append(node)
+                        break
+
+            if self.selectedRow > self.visible.length:
+                self.selectedRow = self.visible.length-1
+            
+        
+
+    def __search(self, search):
         """
             Search for something in the database
         
