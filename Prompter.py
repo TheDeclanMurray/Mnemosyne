@@ -8,15 +8,13 @@ class Prompter():
     """
         Class that handles (for the most part) terminal interactions
     """
-
     def __init__(self):
         self.controler = Controller()
         self.dataBase = Data()
         self.errorText = []
         self.instructions = Fore.RED + """   Q quit, I insert, D delete row or column, R add row, C add column, 
    F search, T sort, S save , A save as, O open, K delete page, N new page, P Pause""" + Style.RESET_ALL
-
-
+    
     def terminalPrompter(self):
         """
             Open a new dataBase and wait for keyboard comand
@@ -33,7 +31,6 @@ class Prompter():
                     if l.isupper() and not l.isnumeric():
                         press = "shift + "
                     press += l.lower()
-                    print("  leter:",press)
                     kb.press_and_release(press)
                 info = input(Fore.GREEN + "Cell Contents: ")
                 self.dataBase.insert(info)

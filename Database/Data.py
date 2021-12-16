@@ -90,7 +90,7 @@ class Data:
                 self.selectedRow -=1
                 return True
         if comand == "down":
-            if self.selectedRow +1 < self.rows.length:
+            if self.selectedRow +1 < self.visible.length:
                 self.selectedRow +=1
                 return True
 
@@ -136,6 +136,10 @@ class Data:
                 if self.__find__(search, data):
                     self.visible.append(node)
                     break
+
+        if self.selectedRow > self.visible.length:
+            self.selectedRow = self.visible.length-1
+
         return True
 
     def __find__(self,search,data):
@@ -329,7 +333,7 @@ class Data:
                 col +=1
 
             self.__calcColLen__()
-            if self.selectedRow >= self.rows.length:
+            if self.selectedRow >= self.visible.length:
                 self.selectedRow -= 1
             return True
         return False
